@@ -1,0 +1,268 @@
+# config for Kincony KC868-A6 with WellPro WP3082ADAM 8 x 4-20mah -> RS-485 converter.
+
+substitutions:
+  name: esphome-web-fb8c80
+  friendly_name: KC868-A6
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2024.6.0
+  name_add_mac_suffix: false
+  project:
+    name: esphome.web
+    version: dev
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging - disabled due to esp32 storage limitation!
+logger:
+
+# Enable Home Assistant API
+api:
+
+# Allow Over-The-Air updates
+ota:
+- platform: esphome
+
+# Allow provisioning Wi-Fi via serial
+# improv_serial:
+
+wifi:
+  # Set up a wifi access point
+  ap: {}
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device via WiFi AP.
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://esphome/example-configs/esphome-web/esp32.yaml@main
+  import_full_config: true
+
+# Sets up Bluetooth LE (Only on ESP32) to allow the user
+# to provision wifi credentials to the device.
+
+esp32_improv:
+  authorizer: none
+
+# To have a "next url" for improv serial
+web_server:
+
+
+
+# template from https://esphome.io/components/modbus_controller.html
+
+uart:
+  - id: rs485
+    tx_pin: GPIO27
+    rx_pin: GPIO14
+    baud_rate: 9600
+# disabled due to ESP32-WROOM-32E space constraints
+#  - id: rs232
+#    tx_pin: GPIO17
+#    rx_pin: GPIO16
+#    baud_rate: 9600
+
+modbus:
+  id: modbus1
+  uart_id: rs485
+  send_wait_time: 200ms
+
+modbus_controller:
+- id: wp3082adam1
+  address: 1
+  modbus_id: modbus1
+  update_interval: 2s
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_01
+    name: "wp3082adam1-level1"
+    address: 0x0000
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_02
+    name: "wp3082adam1-level2"
+    address: 0x0001
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_03
+    name: "wp3082adam1-level3"
+    address: 0x0002
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_04
+    name: "wp3082adam1-level4"
+    address: 0x0003
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_05
+    name: "wp3082adam1-level5"
+    address: 0x0004
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_06
+    name: "wp3082adam1-level6"
+    address: 0x0005
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_07
+    name: "wp3082adam1-level7"
+    address: 0x0006
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: wp3082adam1
+    id: wp3082adam1_08
+    name: "wp3082adam1-level8"
+    address: 0x0007
+    unit_of_measurement: "decimal"
+    register_type: holding
+    value_type: U_WORD
+
+spi:
+  clk_pin: GPIO18
+  mosi_pin: GPIO23
+  miso_pin: GPIO19
+  # cs pin: GPIO5
+
+i2c:
+  sda: GPIO4
+  scl:
+    number: GPIO15
+    ignore_strapping_warning: true
+
+pcf8574:
+  - id: inputs
+    address: 0x22
+  - id: outputs
+    address: 0x24
+
+time:
+  - platform: ds1307
+    id: rtc_time
+
+binary_sensor:
+  - platform: gpio
+    name: "KC868-A6-IN-1"
+    pin:
+      pcf8574: inputs
+      number: 0
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-IN-2"
+    pin:
+      pcf8574: inputs
+      number: 1
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-IN-3"
+    pin:
+      pcf8574: inputs
+      number: 2
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-IN-4"
+    pin:
+      pcf8574: inputs
+      number: 3
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-IN-5"
+    pin:
+      pcf8574: inputs
+      number: 4
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-IN-6"
+    pin:
+      pcf8574: inputs
+      number: 5
+      mode: INPUT
+      inverted: true
+
+switch:
+  - platform: gpio
+    name: "KC868-A6-RELAY-1"
+    id: relay_1
+    pin:
+      pcf8574: outputs
+      number: 0
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-RELAY-2"
+    id: relay_2
+    pin:
+      pcf8574: outputs
+      number: 1
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-RELAY-3"
+    id: relay_3
+    pin:
+      pcf8574: outputs
+      number: 2
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-RELAY-4"
+    id: relay_4
+    pin:
+      pcf8574: outputs
+      number: 3
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-RELAY-5"
+    id: relay_5
+    pin:
+      pcf8574: outputs
+      number: 4
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "KC868-A6-RELAY-6"
+    id: relay_6
+    pin:
+      pcf8574: outputs
+      number: 5
+      mode: OUTPUT
+      inverted: true
